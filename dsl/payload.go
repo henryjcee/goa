@@ -1,6 +1,8 @@
 package dsl
 
 import (
+	"fmt"
+
 	"goa.design/goa/v3/eval"
 	"goa.design/goa/v3/expr"
 )
@@ -79,6 +81,12 @@ func Payload(val any, args ...any) {
 		return
 	}
 	e.Payload = methodDSL(e, "Payload", val, args...)
+
+	// Set the payload openapi:typename key explicitly from the method name to prevent clobbering
+	if e.Payload.Meta == nil {
+		e.Payload.Meta = make(expr.MetaExpr)
+	}
+	e.Payload.Meta["openapi:typename"] = []string{fmt.Sprintf("%sRequestBody", e.Name)}
 }
 
 // StreamingPayload defines a method that accepts a stream of instances of the

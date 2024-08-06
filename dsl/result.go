@@ -1,6 +1,8 @@
 package dsl
 
 import (
+	"fmt"
+
 	"goa.design/goa/v3/eval"
 	"goa.design/goa/v3/expr"
 )
@@ -81,6 +83,12 @@ func Result(val any, args ...any) {
 		return
 	}
 	e.Result = methodDSL(e, "Result", val, args...)
+
+	// Set the result type name explicitly to prevent clobbering with the OpenAPI v3 generator
+	if e.Result.Meta == nil {
+		e.Result.Meta = make(expr.MetaExpr)
+	}
+	e.Result.Meta["openapi:typename"] = []string{fmt.Sprintf("%sResponseBody", e.Name)}
 }
 
 // StreamingResult defines a method that streams instances of the given type.
