@@ -245,7 +245,12 @@ func (sf *schemafier) schemafy(attr *expr.AttributeExpr, noref ...bool) *openapi
 			name = n[0]
 		}
 
-		typeName := sf.uniquify(codegen.Goify(name, true))
+		// If there's no original name, uniquify it
+		typeName := codegen.Goify(name, true)
+		if _, ok := t.Attribute().Meta["openapi:typename"]; !ok {
+			typeName = sf.uniquify(typeName)
+		}
+
 		s.Ref = toRef(typeName)
 		sf.hashes[h] = append(sf.hashes[h], s.Ref)
 		sf.schemas[typeName] = sf.schemafy(t.Attribute(), true)
